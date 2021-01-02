@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "873870121139",
+    "project_id": "triplem-7f08e",
+    "storage_bucket": "triplem-7f08e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873870121139:android:b240b9280d9562bd37f8c6",
+        "android_client_info": {
+          "package_name": "at.modoo.triplem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "873870121139-n03pietgrt4lvjsoc0iouhefd48eisd0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "at.modoo.triplem",
+            "certificate_hash": "980edf218a7a6458f44ee18f0c162fc4654e4fa9"
+          }
+        },
+        {
+          "client_id": "873870121139-9dm29r6c8lchb5296ie0u98sd6m845n6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcb0EvPqP1TzZSAYYk6cveGEJWZSRJnNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "873870121139-9dm29r6c8lchb5296ie0u98sd6m845n6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
