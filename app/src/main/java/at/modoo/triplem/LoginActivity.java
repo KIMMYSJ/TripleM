@@ -1,5 +1,6 @@
 package at.modoo.triplem;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,8 +15,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -31,18 +34,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
-    private ImageView imageBackground, imageLogo;
+    private TextView imageBackground, imageLogo;
     private CheckBox loginCheckbox;
     private EditText editEmail,editPassword;
     private Button btnSignUp;
     private ImageButton btnLogin;
 
-    private SignInButton btn_google;
+    private Button btn_google;
     private FirebaseAuth auth;
     private GoogleApiClient googleApiClient;
 
-
     private static final int REQ_SIGN_GOOGLE = 100;
+    private static final int REQ_SIGN_UP = 200;
 //    private static final int REQ_
 
 
@@ -54,24 +57,22 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         btn_google = findViewById(R.id.btn_google);
         editEmail = findViewById(R.id.editId);
         editPassword = findViewById(R.id.editPassword);
+        imageLogo = findViewById(R.id.imageLogo);
         btnLogin = findViewById(R.id.btn_login);
+        btnSignUp = findViewById(R.id.btn_signUp);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveLoginInfo(editEmail.getText().toString(),editPassword.getText().toString());
             }
         });
-        btnSignUp = findViewById(R.id.btn_signUp);
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(getApplicationContext());
-//                startActivityForResult();
+                Intent intent = new Intent(getApplicationContext(),SignUpActivity.class);
+                startActivityForResult(intent,REQ_SIGN_UP);
             }
         });
-        loadLoginInfo(editEmail,editPassword,loginCheckbox);
-        googleInit();
-
         btn_google.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +80,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 startActivityForResult(intent, REQ_SIGN_GOOGLE);
             }
         });
+        loadLoginInfo(editEmail,editPassword,loginCheckbox);
+        googleInit();
     }
 
     private void googleInit(){
@@ -100,6 +103,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 GoogleSignInAccount account = result.getSignInAccount();
                 resultLogin(account);
             }
+        }
+        if(requestCode==REQ_SIGN_UP){
+            Toast.makeText(getApplicationContext(),"Sign-Up successed!",Toast.LENGTH_SHORT).show();
         }
     }
 

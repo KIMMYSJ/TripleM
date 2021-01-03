@@ -3,4 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="ID">LOGIN_ID</string>
     <string name="PASSWORD">LOGIN_PASSWORD</string>
+    <string name="sign_up_description"> Sign up to share your memories with others</string>
+    <string name="google_log_in_text">Log in with Google</string>
 </resources>

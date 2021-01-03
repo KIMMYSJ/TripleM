@@ -1,48 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-
+    android:gravity="center"
+    android:background="@drawable/login_background_map_1"
     tools:context=".LoginActivity"
 
     >
+<LinearLayout
 
+    android:padding="@dimen/margin_sides"
+    android:orientation="vertical"
+    android:background="@color/trans_green"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
 <RelativeLayout
-    android:layout_marginTop="100dp"
+    android:layout_marginTop="50dp"
+    android:layout_gravity="center"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     >
 
     <ImageView
+
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:id="@+id/imageLogoBack"
-        android:layout_width="280dp"
-        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:padding="20dp"
         android:scaleType="centerInside"
-        app:srcCompat="@drawable/logo_long_back" />
+        app:srcCompat="@drawable/outer_white_frame" />
 
     <TextView
-        android:textSize="36dp"
-        android:text="Triple M"
-        android:textAlignment="center"
-        android:textColor="@color/colorMint"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
+
         android:id="@+id/imageLogo"
-        android:layout_width="240dp"
-        android:layout_height="68dp"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/white_frame"
+        android:fontFamily="sans-serif-condensed"
+        android:padding="15dp"
+        android:text="MX3"
+
+        android:textAlignment="center"
+        android:textColor="@color/colorRealWhite"
+        android:textSize="@dimen/header_text_size"
+        android:textStyle="bold"
         app:srcCompat="@color/colorRealWhite" />
 </RelativeLayout>
 
+    <LinearLayout
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
 
     <GridLayout
-        android:layout_marginTop="100dp"
+        android:background="@color/transparent"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/large_text_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -57,10 +83,12 @@
             android:background="@null"
             android:ems="10"
             android:hint="E-mail"
+            android:textColor="@color/colorRealWhite"
+            android:textColorHint="@color/colorRealWhite"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             android:paddingRight="40dp"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
 
         <View
             android:id="@+id/view2"
@@ -69,7 +97,7 @@
             android:layout_row="1"
             android:layout_column="0"
             android:layout_columnWeight="1"
-            android:background="#303030" />
+            android:background="@color/colorRealWhite"/>
 
         <EditText
             android:id="@+id/editPassword"
@@ -80,11 +108,13 @@
             android:layout_columnWeight="1"
             android:background="@null"
             android:ems="10"
+            android:textColor="@color/colorRealWhite"
+            android:textColorHint="@color/colorRealWhite"
             android:hint="password"
             android:inputType="textPassword"
             android:padding="10dp"
             android:paddingRight="40dp"
-            android:textSize="16sp" />
+            android:textSize="@dimen/text_size_default" />
 
         <ImageButton
 
@@ -96,36 +126,42 @@
             android:layout_rowWeight="1"
             android:layout_column="1"
             android:layout_columnWeight="1"
-            android:background="#595959"
+            android:background="@color/trans_green"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/login_arrow" />
+            android:src="@drawable/login_arrow"
+             />
 
     </GridLayout>
-<com.google.android.gms.common.SignInButton
-
-    android:id="@+id/btn_google"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"/>
 
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" android:orientation="horizontal">
-<CheckBox
+
+<RelativeLayout
+
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="@dimen/text_size_default"
+    android:orientation="horizontal">
+
+    <CheckBox
 
         android:id="@+id/cb_loginInfo"
         android:layout_width="wrap_content"
+        android:buttonTint="@color/colorRealWhite"
         android:layout_height="32dp"
-        android:layout_marginEnd="10dp"
+        android:layout_alignParentLeft="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="10dp"
         android:text="Save Login info"
-        android:textColor="#595959"
- />
+        android:textColor="@color/colorRealWhite"
+        android:textStyle="bold"
+        app:srcCompat="@color/cardview_shadow_end_color" />
 
     <Button
+
         android:id="@+id/btn_signUp"
         android:layout_width="wrap_content"
         android:layout_height="32dp"
@@ -134,12 +170,49 @@
         android:padding="6dp"
         android:background="@drawable/login_box2"
         android:text="Sign up"
-        android:textColor="@color/colorTomato"
+        android:textColor="@color/colorRealWhite"
+        android:layout_alignParentRight="true"
   />
+</RelativeLayout>
+
+    <View
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/margin_top"
+        android:id="@+id/view"
+        android:layout_width="300dp"
+        android:layout_height="1dp"
+        android:layout_row="1"
+        android:layout_column="0"
+        android:layout_columnWeight="1"
+        android:background="@color/transparent" />
+
+    <Button
+        android:id="@+id/btn_google"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:drawableLeft="@drawable/google"
+        android:background="@color/transparent"
+        android:layout_gravity="center"
+        android:drawablePadding="@dimen/large_text_size"
+
+        android:layout_width="300dp"
+        android:text="@string/google_log_in_text"
+        android:textColor="@color/colorRealWhite"
+        android:textSize="@dimen/text_size_default"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/large_text_size"
+        />
+
+    </LinearLayout>
+
+
+
+<!--    <com.google.android.gms.common.SignInButton-->
+<!--        android:layout_gravity="center"-->
+<!--        android:id="@+id/btn_google"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"/>-->
+
+
 </LinearLayout>
-
-
-
-
-
 </LinearLayout>

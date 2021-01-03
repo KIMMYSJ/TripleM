@@ -12,5 +12,12 @@
     <color name="colorRealWhite">#ffffff</color>
     <color name="colorMint">#167c80</color>
     <color name="colorLightBlack">#1C1C1C</color>
+    <color name="header">#222222</color>
+    <color name="sub_header">#838383</color>
+    <color name="text_default">#ABABAB</color>
+    <color name="transparent">#8affffff</color>
+    <color name="red">#FF0000</color>
+    <color name="trans_green"> #8020B2AA</color>
+    <color name="trans_blue">#804169E1 </color>
 
 </resources>
