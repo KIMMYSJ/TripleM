@@ -1,15 +1,21 @@
 package at.modoo.triplem;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -24,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -46,6 +53,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private static final int REQ_SIGN_GOOGLE = 100;
     private static final int REQ_SIGN_UP = 200;
+    private static final int RES_SIGN_UP_S = 201;
+    private static final int RES_SIGN_UP_F = 202;
 //    private static final int REQ_
 
 
@@ -60,17 +69,30 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        loginCheckbox = findViewById(R.id.cb_loginInfo);
+        googleInit();
         btn_google = findViewById(R.id.btn_google);
         editEmail = findViewById(R.id.editId);
         editPassword = findViewById(R.id.editPassword);
         imageLogo = findViewById(R.id.imageLogo);
         btnLogin = findViewById(R.id.btn_login);
         btnSignUp = findViewById(R.id.btn_signUp);
+        loginCheckbox=findViewById(R.id.cb_loginInfo);
+        loadLoginInfo(editEmail,editPassword,loginCheckbox);
+        enableAutoLogin();
+        permissionRequest();
+
+
+
+
+
+
+
+        getWindow().setStatusBarColor(getResources().getColor(R.color.login_status_bar));
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveLoginInfo(editEmail.getText().toString(),editPassword.getText().toString());
+
             }
         });
         btnSignUp.setOnClickListener(new View.OnClickListener() {
@@ -87,8 +109,31 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 startActivityForResult(intent, REQ_SIGN_GOOGLE);
             }
         });
-        loadLoginInfo(editEmail,editPassword,loginCheckbox);
-        googleInit();
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private void permissionRequest() {
+        if (    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            String[] permissions = { Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.INTERNET
+                    ,Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(permissions, 21);
+            }
+        }
+    }
+
+    private void enableAutoLogin() {
+        if (auth.getCurrentUser() != null&&loginCheckbox.isChecked()){
+            // User is signed in (getCurrentUser() will be null if not signed in)
+            permissionRequest();
+            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void googleInit(){
@@ -104,16 +149,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //For google login auth intent
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQ_SIGN_GOOGLE){
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if(result.isSuccess()){
-                GoogleSignInAccount account = result.getSignInAccount();
-                resultLogin(account);
-            }
+        switch(requestCode){
+            case REQ_SIGN_GOOGLE:
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                if(result.isSuccess()){
+                    GoogleSignInAccount account = result.getSignInAccount();
+                    resultLogin(account);
+                }
+            case REQ_SIGN_UP:
+                if(resultCode==RES_SIGN_UP_S){
+                    Toast.makeText(getApplicationContext(),"Registered!",Toast.LENGTH_SHORT).show();
+                }else if(resultCode == RES_SIGN_UP_F){
+                    Toast.makeText(getApplicationContext(),"Failed to register",Toast.LENGTH_SHORT).show();
+                }
         }
-        if(resultCode==-999){
-            Toast.makeText(getApplicationContext(),"Quit!",Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     private void resultLogin(final GoogleSignInAccount account){
@@ -122,17 +172,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                    intent.putExtra("nickName",account.getDisplayName());
-                    intent.putExtra("photoUrl",String.valueOf(account.getPhotoUrl()));
-
                     startActivity(intent);
                 }else{
-                    Toast.makeText(LoginActivity.this,"Fail",Toast.LENGTH_SHORT).show();
-
+                    task.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(LoginActivity.this,"Fail",Toast.LENGTH_SHORT).show();
+                            Log.i(TAG,e.getMessage());
+                        }
+                    });
                 }
-
             }
         });
 
@@ -142,21 +192,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private void loadLoginInfo(EditText id, EditText password, CheckBox cb) {
         SharedPreferences preferences = getSharedPreferences("save", MODE_PRIVATE);
         if(preferences.getString("id","") != null) {
-            id.setText(preferences.getString("id", ""));
-            password.setText(preferences.getString("pw", ""));
+            id.setText(preferences.getString(getString(R.string.ID), ""));
+            password.setText(preferences.getString(getString(R.string.PASSWORD), ""));
+            Log.i(TAG,"LOADING INFO ...");
             cb.setChecked(true);
         }
 
     }
-
-    private void saveLoginInfo(String email, String pw){
+    public void saveLoginInfo(View view) {
         SharedPreferences preferences = getSharedPreferences("save",MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Log.i(TAG,"saveLoginInfo");
         if(loginCheckbox.isChecked()){
             Log.i(TAG,"saveLoginInfo:if statement");
-            editor.putString(getString(R.string.ID), email);
-            editor.putString(getString(R.string.PASSWORD),pw);
+            editor.putString(getString(R.string.ID), editEmail.getText().toString());
+            editor.putString(getString(R.string.PASSWORD),editPassword.getText().toString());
             editor.apply();
         }else{
             editor.putString(getString(R.string.ID), null);
@@ -166,8 +216,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
 
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+
 }

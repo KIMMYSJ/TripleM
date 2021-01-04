@@ -20,5 +20,6 @@
     <color name="trans_green"> #8020B2AA</color>
     <color name="trans_blue">#804169E1 </color>
     <color name="yellow">#ffed67</color>
+    <color name="login_status_bar">#51918B</color>
 
 </resources>
