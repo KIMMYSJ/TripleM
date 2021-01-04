@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import at.modoo.triplem.R;
+
 public class ResultActivity extends AppCompatActivity {
     private TextView tv_result;
     private ImageView iv_profile;
@@ -17,6 +19,7 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
         tv_result = findViewById(R.id.tv_result);
         iv_profile = findViewById((R.id.iv_profile));
 

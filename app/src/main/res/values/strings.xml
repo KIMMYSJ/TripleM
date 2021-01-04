@@ -5,4 +5,14 @@
     <string name="PASSWORD">LOGIN_PASSWORD</string>
     <string name="sign_up_description"> Sign up to share your memories with others</string>
     <string name="google_log_in_text">Log in with Google</string>
+    <string name="INVALID_EMAIL">Invalid E-mail pattern</string>
+    <string name="INVALID_PASSWORD_DIGIT">Password should contain at least one digit</string>
+    <string name="INVALID_PASSWORD_UPPER">Password should contain at least one upper case letter</string>
+    <string name="INVALID_PASSWORD_LOWER">Password should contain at least one lower case letter</string>
+    <string name="INVALID_PASSWORD_LENGTH">Password should contain at least eight letters</string>
+    <string name="INVALID_PASSWORD_SPACE">Password should not contain any spaces</string>
+    <string name="INVALID_PASSWORD_SPECIAL">Password should contain at least one special character</string>
+    <string name="VALID_EMAIL">Valid E-mail pattern</string>
+    <string name="VALID_PASSWORD">Valid Password</string>
+
 </resources>
