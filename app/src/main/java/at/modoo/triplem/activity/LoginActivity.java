@@ -1,11 +1,10 @@
-package at.modoo.triplem;
+package at.modoo.triplem.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,7 +14,6 @@ import androidx.core.app.ActivityCompat;
 
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -38,8 +36,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+import at.modoo.triplem.Presenter.LoginContract;
+import at.modoo.triplem.Presenter.LoginPresenter;
+import at.modoo.triplem.R;
+
+public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LoginContract.View {
     public static final String TAG = "modoo.at";
+    private LoginPresenter loginPresenter;
     private TextView imageBackground, imageLogo;
     private CheckBox loginCheckbox;
     private EditText editEmail,editPassword;
@@ -47,6 +50,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private ImageButton btnLogin;
     private Button btn_google;
     private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleApiClient googleApiClient;
 
 //    private LoginScreenViewModel mScreenViewModel;
@@ -61,15 +65,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-       // updateUI(currentUser);
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        googleInit();
+
+        getWindow().setStatusBarColor(getResources().getColor(R.color.login_status_bar));
+
+        //Init Views
         btn_google = findViewById(R.id.btn_google);
         editEmail = findViewById(R.id.editId);
         editPassword = findViewById(R.id.editPassword);
@@ -77,22 +83,25 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         btnLogin = findViewById(R.id.btn_login);
         btnSignUp = findViewById(R.id.btn_signUp);
         loginCheckbox=findViewById(R.id.cb_loginInfo);
+        auth =FirebaseAuth.getInstance();
+
+        //Init
+        loginPresenter = new LoginPresenter();
+        loginPresenter.attachView(this);
+        googleInit();
+
+
         loadLoginInfo(editEmail,editPassword,loginCheckbox);
         enableAutoLogin();
         permissionRequest();
 
 
-
-
-
-
-
-        getWindow().setStatusBarColor(getResources().getColor(R.color.login_status_bar));
-
+        //event
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                loginPresenter.onLogin(editEmail.getText().toString(),editPassword.getText().toString());
+                clickLogin();
             }
         });
         btnSignUp.setOnClickListener(new View.OnClickListener() {
@@ -112,18 +121,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    @SuppressLint("MissingPermission")
-    private void permissionRequest() {
-        if (    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = { Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.INTERNET
-                    ,Manifest.permission.CAMERA,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(permissions, 21);
-            }
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        loginPresenter.detachView();
+    }
+
+    private void googleInit(){
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.
+                Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
+        googleApiClient= new GoogleApiClient.Builder(this).enableAutoManage(this,this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API,googleSignInOptions).build();
+
     }
 
     private void enableAutoLogin() {
@@ -132,17 +141,63 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             permissionRequest();
             Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
             startActivity(intent);
-            finish();
+
         }
     }
 
-    private void googleInit(){
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.
-                Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
-        googleApiClient= new GoogleApiClient.Builder(this).enableAutoManage(this,this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API,googleSignInOptions).build();
-        auth =FirebaseAuth.getInstance();
+    // Load the Saved Login info
+    private void loadLoginInfo(EditText id, EditText password, CheckBox cb) {
+        SharedPreferences preferences = getSharedPreferences("save", MODE_PRIVATE);
+        if(preferences.getString("id","") != null) {
+            id.setText(preferences.getString(getString(R.string.ID), ""));
+            password.setText(preferences.getString(getString(R.string.PASSWORD), ""));
+            Log.i(TAG,"LOADING INFO ...");
+            cb.setChecked(true);
+        }
 
+    }
+    public void clickLogin() {
+
+        SharedPreferences preferences = getSharedPreferences("save", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Log.i(TAG, "saveLoginInfo");
+        if (loginCheckbox.isChecked()) {
+            Log.i(TAG, "saveLoginInfo:if statement");
+            editor.putString(getString(R.string.ID), editEmail.getText().toString());
+            editor.putString(getString(R.string.PASSWORD), editPassword.getText().toString());
+            editor.apply();
+        } else {
+            editor.putString(getString(R.string.ID), null);
+            editor.putString(getString(R.string.PASSWORD), null);
+            editor.apply();
+        }
+
+    }
+
+
+
+    @SuppressLint("MissingPermission")
+    private void permissionRequest() {
+        if (    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+                &&ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+                &&ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            String[] permissions = { Manifest.permission.ACCESS_BACKGROUND_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET
+                    ,Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+                requestPermissions(permissions, 21);
+
+
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -154,7 +209,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 if(result.isSuccess()){
                     GoogleSignInAccount account = result.getSignInAccount();
-                    resultLogin(account);
+                    resultGoogleLogin(account);
                 }
             case REQ_SIGN_UP:
                 if(resultCode==RES_SIGN_UP_S){
@@ -166,12 +221,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    private void resultLogin(final GoogleSignInAccount account){
+    private void resultGoogleLogin(final GoogleSignInAccount account){
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         auth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
+                    boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
+                    loginPresenter.onGoogleLogin(isNew);
+                    Log.d(TAG, "onComplete: " + (isNew ? "new user" : "old user"));
                     Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
                     startActivity(intent);
                 }else{
@@ -188,39 +246,22 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     }
 
-    // Load the Saved Login info
-    private void loadLoginInfo(EditText id, EditText password, CheckBox cb) {
-        SharedPreferences preferences = getSharedPreferences("save", MODE_PRIVATE);
-        if(preferences.getString("id","") != null) {
-            id.setText(preferences.getString(getString(R.string.ID), ""));
-            password.setText(preferences.getString(getString(R.string.PASSWORD), ""));
-            Log.i(TAG,"LOADING INFO ...");
-            cb.setChecked(true);
-        }
-
-    }
-    public void saveLoginInfo(View view) {
-        SharedPreferences preferences = getSharedPreferences("save",MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        Log.i(TAG,"saveLoginInfo");
-        if(loginCheckbox.isChecked()){
-            Log.i(TAG,"saveLoginInfo:if statement");
-            editor.putString(getString(R.string.ID), editEmail.getText().toString());
-            editor.putString(getString(R.string.PASSWORD),editPassword.getText().toString());
-            editor.apply();
-        }else{
-            editor.putString(getString(R.string.ID), null);
-            editor.putString(getString(R.string.PASSWORD),null);
-            editor.apply();
-        }
-    }
 
 
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(getApplicationContext(),connectionResult.getErrorMessage(),Toast.LENGTH_SHORT).show();
     }
 
 
+    @Override
+    public void loginResult(boolean isLogedin) {
+        if(isLogedin){
+            Intent intent = new Intent(getApplicationContext(),ResultActivity.class);
+
+        }else{
+            Toast.makeText(getApplicationContext(),"Login Failed, check your password once again",Toast.LENGTH_SHORT).show();
+        }
+    }
 }

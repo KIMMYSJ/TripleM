@@ -9,7 +9,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:background="@drawable/login_background_map_1"
-    tools:context=".LoginActivity"
+    tools:context=".activity.LoginActivity"
 
     >
 <LinearLayout
@@ -117,7 +117,6 @@
             android:textSize="@dimen/text_size_default" />
 
         <ImageButton
-
             android:id="@+id/btn_login"
             android:layout_width="40dp"
             android:layout_height="0dp"
@@ -133,6 +132,8 @@
             android:src="@drawable/login_arrow"
              />
 
+
+
     </GridLayout>
 
 
@@ -146,26 +147,25 @@
     android:orientation="horizontal">
 
     <CheckBox
-        android:onClick="saveLoginInfo"
         android:id="@+id/cb_loginInfo"
         android:layout_width="wrap_content"
+        android:text="Enable Auto Login "
         android:buttonTint="@color/colorRealWhite"
         android:layout_height="32dp"
         android:layout_alignParentLeft="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="10dp"
-        android:text="Save Login info"
         android:textColor="@color/colorRealWhite"
         android:textStyle="bold"
         app:srcCompat="@color/cardview_shadow_end_color" />
+
 
     <Button
 
         android:id="@+id/btn_signUp"
         android:layout_width="wrap_content"
         android:layout_height="32dp"
-        android:layout_marginEnd="12dp"
         android:layout_marginTop="8dp"
         android:padding="6dp"
         android:background="@drawable/login_box2"
